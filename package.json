@@ -1,0 +1,26 @@
+{
+  "name": "aws-domain-redirect",
+  "version": "1.0.0",
+  "description": "A simple project to programmatically redirect a domain to a specific URL using AWS Route53 and AWS S3 Static Websites.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dolox/aws-domain-redirect.git"
+  },
+  "author": "Dolox, Inc.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dolox/aws-domain-redirect/issues"
+  },
+  "homepage": "https://github.com/dolox/aws-domain-redirect#readme",
+  "dependencies": {
+    "aws-sdk": "^2.1161.0",
+    "chalk": "^5.0.1",
+    "lodash": "^4.17.21",
+    "uuid": "^8.3.2"
+  },
+  "type": "module"
+}
