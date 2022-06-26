@@ -34,7 +34,7 @@ import config from "./config.js";
 | `aws.accessKeyId`                  | `string`  | Your AWS secret access key.                                                                                  |
 | `aws.route53.DNSName`              | `string`  | The AWS S3 Bucket DNS Name. See: https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteEndpoints.html |
 | `aws.route53.EvaluateTargetHealth` | `boolean` | See: https://docs.aws.amazon.com/Route53/latest/APIReference/API_AliasTarget.html                            |
-| `aws.route53.HostedZoneId`         | `boolean` | See: https://docs.aws.amazon.com/sdk-for-ruby/v1/api/AWS/Route53/HostedZone.html                             |
+| `aws.route53.HostedZoneId`         | `string`  | See: https://docs.aws.amazon.com/sdk-for-ruby/v1/api/AWS/Route53/HostedZone.html                             |
 
 **Example:**
 
