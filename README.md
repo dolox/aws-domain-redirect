@@ -69,7 +69,7 @@ This project needs access to programmatically:
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "VisualEditor0",
+      "Sid": "aws-domain-redirect",
       "Effect": "Allow",
       "Action": [
         "route53:GetChange",
