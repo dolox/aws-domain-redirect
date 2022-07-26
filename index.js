@@ -217,5 +217,5 @@ export default function (config) {
     }).promise();
   };
 
-  return { Run, ZoneRecordCreate };
+  return { Run };
 }
