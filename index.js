@@ -4,15 +4,15 @@ import chalk from "chalk";
 import { URL } from "url";
 import { v4 as uuidv4 } from "uuid";
 
-export default function(config) {
+export default function (config) {
   const Route53 = new AWS.Route53({
     accessKeyId: config.aws.accessKeyId,
-    secretAccessKey: config.aws.secretAccessKey
+    secretAccessKey: config.aws.secretAccessKey,
   });
 
   const S3 = new AWS.S3({
     accessKeyId: config.aws.accessKeyId,
-    secretAccessKey: config.aws.secretAccessKey
+    secretAccessKey: config.aws.secretAccessKey,
   });
 
   const BucketCreate = async (name) => {
@@ -85,6 +85,74 @@ export default function(config) {
     return 1;
   };
 
+  const Run = async (domain, hostedZoneName, redirectUrl) => {
+    console.info(`${chalk.cyan(`Domain: ${domain}`)}`);
+    console.info(`${chalk.cyan(`Redirect: ${redirectUrl}`)}`);
+
+    console.info(`    |─ ${chalk.underline(`Creating Bucket for domain.`)}`);
+    const bucketCreate = await BucketCreate(domain);
+
+    if (bucketCreate === false) {
+      throw new Error(`Failed to create bucket: ${domain}`);
+    } else if (bucketCreate === 0) {
+      console.info(
+        `    |    └─ ${chalk.yellow(`Bucket already exists, skipping.`)}`
+      );
+    } else if (bucketCreate === 1) {
+      console.info(`    |    └─ ${chalk.green(`Bucket created.`)}`);
+    }
+
+    console.info(`    |─ ${chalk.underline(`Updating website for Bucket.`)}`);
+    const bucketUpdateWebsite = await BucketUpdateWebsite(domain, redirectUrl);
+
+    if (bucketUpdateWebsite === false) {
+      throw new Error(`Failed to update bucket website: ${domain}`);
+    } else if (bucketUpdateWebsite === 0) {
+      console.info(
+        `    |    └─ ${chalk.yellow(`Bucket website unchanged, skipping.`)}`
+      );
+    } else if (bucketUpdateWebsite === 1) {
+      console.info(`    |    └─ ${chalk.green(`Bucket website updated.`)}`);
+    }
+
+    console.info(`    |─ ${chalk.underline(`Creating Hosted Zone.`)}`);
+    const zoneCreate = await ZoneCreate(hostedZoneName);
+
+    if (!zoneCreate) {
+      throw new Error(`Failed to create zone: ${hostedZoneName}`);
+    } else if (zoneCreate.exists === true) {
+      console.info(
+        `    |    └─ ${chalk.yellow(`Hosted Zone already exists, skipping.`)}`
+      );
+    } else {
+      console.info(`    |    └─ ${chalk.green(`Hosted Zone created.`)}`);
+    }
+
+    console.info(`    |─ ${chalk.underline(`Creating Hosted Zone Record.`)}`);
+    const zoneRecordCreate = await ZoneRecordCreate(domain, zoneCreate.Id);
+
+    if (!zoneRecordCreate) {
+      throw new Error(`Failed to create Hosted Zone Record!`);
+    } else if (zoneRecordCreate.exists === true) {
+      console.info(
+        `    |    └─ ${chalk.yellow(
+          `Hosted Zone Record already exists, skipping.`
+        )}`
+      );
+    } else {
+      console.info(`    |    └─ ${chalk.green(`Hosted Zone Record created.`)}`);
+    }
+
+    console.info(`    └─ ${chalk.green(`Completed.`)}`);
+
+    return {
+      bucketCreate,
+      bucketUpdateWebsite,
+      zoneCreate,
+      zoneRecordCreate,
+    };
+  };
+
   const ZoneCreate = async (name) => {
     const zoneExists = await ZoneExists(name);
 
@@ -149,64 +217,5 @@ export default function(config) {
     }).promise();
   };
 
-  return async (domain, redirectUrl) => {
-    console.info(`${chalk.cyan(`Domain: ${domain}`)}`);
-    console.info(`${chalk.cyan(`Redirect: ${redirectUrl}`)}`);
-
-    console.info(`    |─ ${chalk.underline(`Creating Bucket for domain.`)}`);
-    const bucketCreate = await BucketCreate(domain);
-
-    if (bucketCreate === false) {
-      throw new Error(`Failed to create bucket: ${domain}`);
-    } else if (bucketCreate === 0) {
-      console.info(
-        `    |    └─ ${chalk.yellow(`Bucket already exists, skipping.`)}`
-      );
-    } else if (bucketCreate === 1) {
-      console.info(`    |    └─ ${chalk.green(`Bucket created.`)}`);
-    }
-
-    console.info(`    |─ ${chalk.underline(`Updating website for Bucket.`)}`);
-    const bucketUpdateWebsite = await BucketUpdateWebsite(domain, redirectUrl);
-
-    if (bucketUpdateWebsite === false) {
-      throw new Error(`Failed to update bucket website: ${domain}`);
-    } else if (bucketUpdateWebsite === 0) {
-      console.info(
-        `    |    └─ ${chalk.yellow(`Bucket website unchanged, skipping.`)}`
-      );
-    } else if (bucketUpdateWebsite === 1) {
-      console.info(`    |    └─ ${chalk.green(`Bucket website updated.`)}`);
-    }
-
-    console.info(`    |─ ${chalk.underline(`Creating Hosted Zone.`)}`);
-    const zoneCreate = await ZoneCreate(domain);
-
-    if (!zoneCreate) {
-      throw new Error(`Failed to create zone: ${domain}`);
-    } else if (zoneCreate.exists === true) {
-      console.info(
-        `    |    └─ ${chalk.yellow(`Hosted Zone already exists, skipping.`)}`
-      );
-    } else {
-      console.info(`    |    └─ ${chalk.green(`Hosted Zone created.`)}`);
-    }
-
-    console.info(`    |─ ${chalk.underline(`Creating Hosted Zone Record.`)}`);
-    const zoneRecordCreate = await ZoneRecordCreate(domain, zoneCreate.Id);
-
-    if (!zoneRecordCreate) {
-      throw new Error(`Failed to create Hosted Zone Record!`);
-    } else if (zoneRecordCreate.exists === true) {
-      console.info(
-        `    |    └─ ${chalk.yellow(
-          `Hosted Zone Record already exists, skipping.`
-        )}`
-      );
-    } else {
-      console.info(`    |    └─ ${chalk.green(`Hosted Zone Record created.`)}`);
-    }
-
-    console.info(`    └─ ${chalk.green(`Completed.`)}`);
-  };
-};
+  return { Run, ZoneRecordCreate };
+}

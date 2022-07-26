@@ -20,7 +20,7 @@ import config from "./config.js";
 
 (async () => {
   const awsDomainRedirect = new AWSDomainRedirect(config);
-  await awsDomainRedirect("https://dolox.com/", "https://www.dolox.com/");
+  await awsDomainRedirect.Run("www.dolox.com", "dolox.com", "https://www.dolox.com/");
 })();
 ```
 
@@ -52,6 +52,33 @@ import config from "./config.js";
   }
 }
 ```
+
+---
+
+## API
+
+### async Run(domain, hostedZoneName, redirectUrl)
+
+This Function will invoke the process of creating a bucket with the static website hosting redirect along with a hosted zone record. 
+
+*Function Parameters:*
+
+| Key            | Type     | Description                                |
+| -------------- | -------- | ------------------------------------------ |
+| domain         | `string` | The record name for the hosted zone entry. |
+| hostedZoneName | `string` | The name of the hosted zone.               |
+| redirectUrl    | `string` | The URL to redirect to.                    |
+
+The Function will return an Object on success, or will throw an error upon failure.
+
+*Return Object:*
+
+| Key                 | Type     | Description                                   |
+| ------------------- | -------- | --------------------------------------------- |
+| bucketCreate        | `object` | Results from creating the bucket.             |
+| bucketUpdateWebsite | `object` | Results from updating the bucket website.     |
+| zoneCreate          | `object` | Results from creating the hosted zone.        |
+| zoneRecordCreate    | `object` | Results from creating the hosted zone record. |
 
 ---
 
