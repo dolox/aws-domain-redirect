@@ -1,6 +1,6 @@
 {
   "name": "aws-domain-redirect",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A simple project to programmatically redirect a domain to a specific URL using AWS Route53 and AWS S3 Static Websites.",
   "main": "index.js",
   "scripts": {
